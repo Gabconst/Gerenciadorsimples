@@ -1,0 +1,109 @@
+from time import sleep
+import emoji
+
+tarefas = []
+situacao_tarefas = []
+
+
+def adicionar_tarefa(tarefa):
+    tarefas.append(tarefa)
+    situacao_tarefas.append(False)
+    print(f'Tarefa "{tarefa}" adicionada!')
+
+
+def remove_tarefa(nome_tarefa):
+    if nome_tarefa in tarefas:
+        tarefas.remove(nome_tarefa)
+        print(f'Tarefa "{nome_tarefa}" removida da lista')
+    else:
+        print('Tarefa não encontrada na lista...')
+
+
+def marcar_tarefa_concluida(rol):
+    if 0 <= rol < len(tarefas):
+        situacao_tarefas[rol] = True
+        print(f'Tarefa "{tarefas[rol]}" marcada como concluída.')
+    else:
+        print('Rol de tarefa inválido.')
+
+
+def listar_tarefas():
+    if tarefas:
+        print('Lista de Tarefas:')
+        for c, (tarefa, status) in enumerate(zip(tarefas, situacao_tarefas), start=1):
+            status_str = 'Foi Concluída' + emoji.emojize(':thumbs_up:') if status else 'Não foi Concluída' + emoji.emojize(':thumbs_down:')
+            print(f'{c}. {tarefa} - {status_str}')
+    else:
+        print('Nenhuma tarefa nessa lista.')
+
+
+def salvando_tarefa_ark(nome_arquivo):
+    with open(nome_arquivo, 'w') as arquivo:
+        for tarefa, status in zip(tarefas, situacao_tarefas):
+            arquivo.write(f'{tarefa}, {status}\n')
+
+
+def carregar_tarefas_no_ark(nome_arquivo):
+    try:
+        with open(nome_arquivo, 'r') as arquivo:
+            for linha in arquivo:
+                tarefa, status_str = linha.strip().split(',')
+                tarefas.append(tarefa)
+                situacao_tarefas.append(status_str == 'True')
+
+    except:
+        FileNotFoundError('O arquivo de tarefa não foi encontrado. Um arquivo novo será'
+                          'feito para salvar as tarefas')
+
+
+carregar_tarefas_no_ark('tarefas.txt')
+
+print('-=' * 20)
+print('╔══════════════════════════════════════╗')
+print('║    #  GERENCIADOR DE TAREFAS  #      ║')
+print('║  ...para voce se organizar melhor... ║')
+print('╚══════════════════════════════════════╝')
+print('-=' * 20)
+sleep(2)
+
+while True:
+    print(' ')
+    print('ESCOLHA SUA OPÇÃO: ')
+    print('1) Adicionar Tarefa')
+    print('2) Marcar Tarefa como Concluída')
+    print('3) Listar Tarefas')
+    print('4) Remover Tarefa')
+    print('5) Sair')
+    sleep(2)
+
+    opc = input('Escolha uma opção: ')
+
+    if opc == '1':
+        nova_tarefa = input('Digite a nova tarefa: ')
+        adicionar_tarefa(nova_tarefa)
+        salvando_tarefa_ark('tarefas.txt')
+
+    elif opc == '2':
+        listar_tarefas()
+        rol = int(input('Digite o índice da tarefa a ser marcada como concluída: ')) - 1
+        marcar_tarefa_concluida(rol)
+        salvando_tarefa_ark('tarefas.txt')
+
+    elif opc == '3':
+        listar_tarefas()
+
+    elif opc == '4':
+        nome_tarefa = input('Digite o nome da tarefa que quer remover: ')
+        remove_tarefa(nome_tarefa)
+        salvando_tarefa_ark('tarefas.txt')
+
+    elif opc == '5':
+        print('Encerrando sessão no App...\n'
+              'VOLTE SEMPRE!')
+        sleep(2)
+        salvando_tarefa_ark('tarefas.txt')
+        break
+
+    else:
+        print('Opção inválida. Tente novamente.')
+
